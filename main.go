@@ -23,8 +23,8 @@ func main() {
 	tdl.AppendToDo(MakeToDo("Second", "Out"))
 	tdl.AppendToDo(MakeToDo("Third", "Order"))
 	var id4, _ = uuid.NewV4()
-	var t4 = ToDo{*id4, 2, "Fourth", "Testing", time.Now(), time.Time{}, nil, nil}
-	tdl.InsertToDo(&t4)
+	var t4 = ToDo{*id4, 2, "Fourth", "Testing", time.Now(), time.Time{}, false, nil, nil}
+	tdl.insertToDo(&t4)
 	tdl.PrintToDoList()
 
 }
