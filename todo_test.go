@@ -13,10 +13,10 @@ var id1, _ = uuid.NewV4()
 var id2, _ = uuid.NewV4()
 var id3, _ = uuid.NewV4()
 var id4, _ = uuid.NewV4()
-var t1 = ToDo{*id1, 0, "First", "Testing", time.Now(), time.Time{}, nil, nil}
-var t2 = ToDo{*id2, 0, "Second", "Testing", time.Now(), time.Time{}, nil, nil}
-var t3 = ToDo{*id3, 0, "Third", "Testing", time.Now(), time.Time{}, nil, nil}
-var t4 = ToDo{*id4, 2, "Fourth", "Testing", time.Now(), time.Time{}, nil, nil}
+var t1 = ToDo{*id1, 0, "First", "Testing", time.Now(), time.Time{}, false, nil, nil}
+var t2 = ToDo{*id2, 0, "Second", "Testing", time.Now(), time.Time{}, false, nil, nil}
+var t3 = ToDo{*id3, 0, "Third", "Testing", time.Now(), time.Time{}, false, nil, nil}
+var t4 = ToDo{*id4, 2, "Fourth", "Testing", time.Now(), time.Time{}, false, nil, nil}
 
 func TestAppend(t *testing.T) {
 	if !tdl.IsEmpty() {
@@ -57,17 +57,6 @@ func TestGetById(t *testing.T) {
 	}
 }
 
-func TestInsertToDo(t *testing.T) {
-	tdl.InsertToDo(&t4)
-	if tdl.Head.Next != &t4 {
-		t.Errorf("Insertion failed")
-	}
-
-	if order := t4.Next.Order; order != 3 {
-		t.Errorf("Reorder failed, expected 3 got %d", order)
-	}
-}
-
 func TestRemoveById(t *testing.T) {
 	err := tdl.RemoveToDoByID(*id1)
 	if err != nil {
@@ -89,5 +78,20 @@ func TestRemoveById(t *testing.T) {
 
 	if t2.Order != 1 {
 		t.Errorf("reorder failed")
+	}
+}
+
+func TestInsertToDo(t *testing.T) {
+	tdl.AppendToDo(MakeToDo("Test", "Ing"))
+	tdl.AppendToDo(MakeToDo("Test", "Ing"))
+
+	tdl.insertToDo(&t4)
+
+	if tdl.Head.Next != &t4 {
+		t.Errorf("Insertion failed")
+	}
+
+	if order := t4.Next.Order; order != 3 {
+		t.Errorf("Reorder failed, expected 3 got %d", order)
 	}
 }

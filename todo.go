@@ -18,9 +18,9 @@ type ToDo struct {
 	Description string    `json:"description,omitempty"`
 	StartedOn   time.Time `json:"started,omitempty"`
 	CompletedOn time.Time `json:"completed,omitempty"`
-	Completed   bool
-	Next        *ToDo
-	Prev        *ToDo
+	IsCompleted bool      `json:"IsCompleted,omitempty"`
+	Next        *ToDo     `json:"-"`
+	Prev        *ToDo     `json:"-"`
 }
 
 // ToDoList is a Linked List data structure
@@ -30,6 +30,8 @@ type ToDoList struct {
 	Tail *ToDo
 	Size int
 }
+
+type ToDos []ToDo
 
 // The layout being used for displaying time
 const layout = "Jan 2, 2006 at 3:04pm (CST)"
@@ -42,12 +44,13 @@ func (t *ToDo) ToString() string {
 			"Description:%s\t"+
 			"StartedOn:%s\t"+
 			"CompletedOn:%s\t"+
-			"Completed: %t\t",
+			"IsCompleted: %t\t",
 		t.Order,
 		t.Title,
 		t.Description,
 		t.StartedOn.UTC().Format(layout),
-		t.CompletedOn.UTC().Format(layout))
+		t.CompletedOn.UTC().Format(layout),
+		t.IsCompleted)
 	return properties
 }
 
@@ -66,6 +69,26 @@ func MakeToDo(title, description string) *ToDo {
 	return &todo
 }
 
+func (tdl *ToDoList) GetArray(size int) ToDos {
+	if size > tdl.Size {
+		size = tdl.Size
+	}
+	count := 0
+	todos := make(ToDos, size)
+	currentNode := tdl.Head
+	if currentNode == nil {
+		panic(errors.New("List has no items"))
+	}
+
+	for count < size || currentNode != nil {
+		todos[count] = *currentNode
+		count++
+		currentNode = currentNode.Next
+	}
+
+	return todos
+}
+
 // UpdateToDoEntity is a ToDoList method that updates an existing
 // ToDo item with a new Title, Description, Order, Completed
 // returns an error from calling GetToDoByID() method
@@ -77,9 +100,9 @@ func (tdl *ToDoList) UpdateToDoEntity(newToDo ToDo) error {
 
 	oldToDo.Title = newToDo.Title
 	oldToDo.Description = newToDo.Description
-	if newToDo.Completed {
+	if newToDo.IsCompleted {
 		oldToDo.CompletedOn = time.Now()
-		oldToDo.Completed = true
+		oldToDo.IsCompleted = true
 	}
 
 	if oldToDo.Order != newToDo.Order {

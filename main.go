@@ -1,36 +1,42 @@
 package main
 
 import (
+	"encoding/json"
+	"log"
 	"net/http"
-	"time"
 
-	"github.com/nu7hatch/gouuid"
+	"github.com/gorilla/mux"
 )
+
+var tdll = ToDoList{nil, nil, 0}
 
 func main() {
 
-	/* 	router := mux.NewRouter()
-	   	router.HandleFunc("/todo", GetToDoList).Methods("GET")
-	   	router.HandleFunc("/todo/{id}", GetToDo).Methods("GET")
-	   	router.HandleFunc("/todo/{id}", CreateToDo).Methods("POST")
-	   	router.HandleFunc("/todo/{id}", UpdateToDo).Methods("PUT")
-	   	router.HandleFunc("/todo/{id}", DeleteToDo).Methods("DELETE")
-	   	log.Fatal(http.ListenAndServe(":8000", router)) */
+	tdll.AppendToDo(MakeToDo("First", "Testing"))
 
-	tdl := ToDoList{nil, nil, 0}
+	router := mux.NewRouter()
+	router.HandleFunc("/v1/todo", ToDoIndex).Methods("GET")
 
-	tdl.AppendToDo(MakeToDo("First", "Testing"))
+	/* 	router.HandleFunc("/v1/todo/{id}", GetToDo).Methods("GET")
+	   	router.HandleFunc("/v1/todo/{id}", CreateToDo).Methods("POST")
+	   	router.HandleFunc("/v1/todo/{id}", UpdateToDo).Methods("PUT")
+	   	router.HandleFunc("/v1/todo/{id}", DeleteToDo).Methods("DELETE") */
+	log.Fatal(http.ListenAndServe(":8080", router))
+
+	/*   	tdl.AppendToDo(MakeToDo("First", "Testing"))
 	tdl.AppendToDo(MakeToDo("Second", "Out"))
 	tdl.AppendToDo(MakeToDo("Third", "Order"))
 	var id4, _ = uuid.NewV4()
 	var t4 = ToDo{*id4, 2, "Fourth", "Testing", time.Now(), time.Time{}, false, nil, nil}
 	tdl.insertToDo(&t4)
-	tdl.PrintToDoList()
+	tdl.PrintToDoList() */
 
 }
 
-func GetToDoList(w http.ResponseWriter, r *http.Request) {}
-func GetToDo(w http.ResponseWriter, r *http.Request)     {}
-func CreateToDo(w http.ResponseWriter, r *http.Request)  {}
-func UpdateToDo(w http.ResponseWriter, r *http.Request)  {}
-func DeleteToDo(w http.ResponseWriter, r *http.Request)  {}
+func Index(w http.ResponseWriter, r *http.Request) {
+
+}
+func ToDoIndex(w http.ResponseWriter, r *http.Request) {
+	todos := tdll.GetArray(2)
+	json.NewEncoder(w).Encode(todos)
+}
