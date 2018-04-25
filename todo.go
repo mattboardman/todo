@@ -105,8 +105,9 @@ func (tdl *ToDoList) UpdateToDoEntity(newToDo ToDo) error {
 		oldToDo.IsCompleted = true
 	}
 
-	if oldToDo.Order != newToDo.Order {
+	if oldToDo.Order != newToDo.Order && newToDo.Order != 0 {
 		oldToDo.Order = newToDo.Order
+		tdl.RemoveToDoByID(oldToDo.ID)
 		tdl.insertToDo(oldToDo)
 	}
 
