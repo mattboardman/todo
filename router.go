@@ -15,12 +15,6 @@ type Routes []Route
 
 var routes = Routes{
 	Route{
-		"Index",
-		"Get",
-		"/",
-		Index,
-	},
-	Route{
 		"ToDoIndex",
 		"GET",
 		"/v1/todo",

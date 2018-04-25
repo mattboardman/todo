@@ -13,7 +13,6 @@ import (
 // It contains self-descriptive properties
 type ToDo struct {
 	ID          uuid.UUID `json:"id,omitempty"`
-	Order       int       `json:"order,omitempty"`
 	Title       string    `json:"title,omitempty"`
 	Description string    `json:"description,omitempty"`
 	StartedOn   time.Time `json:"started,omitempty"`
@@ -39,13 +38,11 @@ const layout = "Jan 2, 2006 at 3:04pm (CST)"
 // ToString prints the editable properties of the ToDo struct
 func (t *ToDo) ToString() string {
 	properties := fmt.Sprintf(
-		"Order:%d\t"+
-			"Title:%s\t"+
+		"Title:%s\t"+
 			"Description:%s\t"+
 			"StartedOn:%s\t"+
 			"CompletedOn:%s\t"+
 			"IsCompleted: %t\t",
-		t.Order,
 		t.Title,
 		t.Description,
 		t.StartedOn.UTC().Format(layout),
@@ -65,7 +62,7 @@ func MakeToDo(title, description string) *ToDo {
 		log.Fatal("Fatal error creating UUID")
 	}
 
-	todo := ToDo{id, 0, title, description, time.Now(), time.Time{}, false, nil, nil}
+	todo := ToDo{id, title, description, time.Now(), time.Time{}, false, nil, nil}
 	return &todo
 }
 
@@ -105,12 +102,6 @@ func (tdl *ToDoList) UpdateToDoEntity(newToDo ToDo) error {
 		oldToDo.IsCompleted = true
 	}
 
-	if oldToDo.Order != newToDo.Order && newToDo.Order != 0 {
-		oldToDo.Order = newToDo.Order
-		tdl.RemoveToDoByID(oldToDo.ID)
-		tdl.insertToDo(oldToDo)
-	}
-
 	return nil
 }
 
@@ -121,12 +112,10 @@ func (tdl *ToDoList) AppendToDo(newToDo *ToDo) {
 	if tdl.Head == nil {
 		tdl.Head = newToDo
 		tdl.Tail = newToDo
-		newToDo.Order = 1
 	} else {
 		tdl.Tail.Next = newToDo
 		newToDo.Prev = tdl.Tail
 		tdl.Tail = newToDo
-		newToDo.Order = newToDo.Prev.Order + 1
 	}
 
 	tdl.Size++
@@ -144,36 +133,6 @@ func (tdl *ToDoList) CreateToDo(newToDo ToDo) *ToDo {
 	newToDo.IsCompleted = false
 
 	return &newToDo
-}
-
-// insertToDo is a ToDoList method that inserts a ToDo item
-// at it's current Order value in the list. It shifts values
-// >= to the right and increments their order number
-func (tdl *ToDoList) insertToDo(todo *ToDo) {
-	var currentNode *ToDo
-
-	if todo.Order == 1 {
-		tdl.Head.Prev = todo
-		todo.Next = tdl.Head
-		tdl.Head = todo
-		currentNode = todo.Next
-	} else {
-		currentNode = tdl.Head
-	}
-
-	for currentNode.Next != nil {
-		if currentNode.Order == todo.Order {
-			todo.Next = currentNode
-			todo.Prev = currentNode.Prev
-			todo.Prev.Next = todo
-			currentNode.Order++
-		} else if currentNode.Order > todo.Order {
-			currentNode.Order++
-		}
-		currentNode = currentNode.Next
-	}
-	currentNode.Order++
-	tdl.Size++
 }
 
 // RemoveToDoByID is a ToDoList method that removes
@@ -198,12 +157,6 @@ func (tdl *ToDoList) RemoveToDoByID(id uuid.UUID) error {
 		todo.Next.Prev = todo.Prev
 	}
 
-	currentNode := todo
-	for currentNode.Next != nil {
-		currentNode.Order--
-		currentNode = currentNode.Next
-	}
-	currentNode.Order--
 	tdl.Size--
 	return nil
 }
