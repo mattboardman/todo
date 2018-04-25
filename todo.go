@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	uuid "github.com/nu7hatch/gouuid"
+	uuid "github.com/satori/go.uuid"
 )
 
 // ToDo is a node in a linked list
@@ -65,7 +65,7 @@ func MakeToDo(title, description string) *ToDo {
 		log.Fatal("Fatal error creating UUID")
 	}
 
-	todo := ToDo{*id, 0, title, description, time.Now(), time.Time{}, false, nil, nil}
+	todo := ToDo{id, 0, title, description, time.Now(), time.Time{}, false, nil, nil}
 	return &todo
 }
 
@@ -129,6 +129,20 @@ func (tdl *ToDoList) AppendToDo(newToDo *ToDo) {
 	}
 
 	tdl.Size++
+}
+
+func (tdl *ToDoList) CreateToDo(newToDo ToDo) *ToDo {
+	id, err := uuid.NewV4()
+	if err != nil {
+		panic(err)
+	}
+
+	newToDo.ID = id
+	newToDo.StartedOn = time.Now()
+	newToDo.CompletedOn = time.Time{}
+	newToDo.IsCompleted = false
+
+	return &newToDo
 }
 
 // insertToDo is a ToDoList method that inserts a ToDo item

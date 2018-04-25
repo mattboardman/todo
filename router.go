@@ -26,4 +26,16 @@ var routes = Routes{
 		"/v1/todo",
 		ToDoIndex,
 	},
+	Route{
+		"ToDoCreate",
+		"POST",
+		"/v1/todo",
+		ToDoCreate,
+	},
+	Route{
+		"ToDoById",
+		"GET",
+		"/v1/todo/{id}",
+		ToDoByID,
+	},
 }
