@@ -145,8 +145,12 @@ func (tdl *ToDoList) RemoveToDoByID(id uuid.UUID) error {
 	}
 
 	if tdl.Head == todo {
-		tdl.Head = todo.Next
-		todo.Next.Prev = nil
+		if tdl.Head.Next != nil {
+			tdl.Head = todo.Next
+			todo.Next.Prev = nil
+		} else {
+			tdl.clearList()
+		}
 	} else if tdl.Tail == todo {
 		tdl.Tail = todo.Prev
 		tdl.Tail.Next = nil
@@ -182,6 +186,12 @@ func (tdl *ToDoList) GetToDoByID(id uuid.UUID) (*ToDo, error) {
 	}
 
 	return nil, errors.New("Could not find To-Do item")
+}
+
+func (tdl *ToDoList) clearList() {
+	tdl.Head = nil
+	tdl.Tail = nil
+	tdl.Size = 0
 }
 
 // PrintToDoList is a ToDoList method that prints out

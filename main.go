@@ -23,12 +23,7 @@ func main() {
 	test.ID = id
 	tdll.AppendToDo(test)
 
-	router := mux.NewRouter()
-	router.HandleFunc("/v1/todo", ToDoIndex).Methods("GET")
-	router.HandleFunc("/v1/todo", ToDoCreate).Methods("POST")
-	router.HandleFunc("/v1/todo", ToDoUpdate).Methods("PUT")
-	router.HandleFunc("/v1/todo/{id}", ToDoByID).Methods("GET")
-	router.HandleFunc("/v1/todo/{id}", ToDoRemoveById).Methods("DELETE")
+	router := NewRouter()
 
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
@@ -79,10 +74,12 @@ func ToDoByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func ToDoRemoveById(w http.ResponseWriter, r *http.Request) {
+func ToDoRemoveByID(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := uuid.FromString(vars["id"])
 	tdll.RemoveToDoByID(id)
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusCreated)
 }
 
 func ToDoUpdate(w http.ResponseWriter, r *http.Request) {

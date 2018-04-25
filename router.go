@@ -2,34 +2,22 @@ package main
 
 import (
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
-type Route struct {
-	Name        string
-	Method      string
-	Pattern     string
-	HandlerFunc http.HandlerFunc
-}
+func NewRouter() *mux.Router {
+	router := mux.NewRouter().StrictSlash(true)
+	for _, route := range routes {
+		var handler http.Handler
+		handler = route.HandlerFunc
+		handler = Logger(handler, route.Name)
 
-type Routes []Route
-
-var routes = Routes{
-	Route{
-		"ToDoIndex",
-		"GET",
-		"/v1/todo",
-		ToDoIndex,
-	},
-	Route{
-		"ToDoCreate",
-		"POST",
-		"/v1/todo",
-		ToDoCreate,
-	},
-	Route{
-		"ToDoById",
-		"GET",
-		"/v1/todo/{id}",
-		ToDoByID,
-	},
+		router.
+			Methods(route.Method).
+			Path(route.Pattern).
+			Name(route.Name).
+			Handler(handler)
+	}
+	return router
 }
