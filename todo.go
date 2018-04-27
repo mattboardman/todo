@@ -3,10 +3,9 @@ package main
 import (
 	"errors"
 	"fmt"
-	"log"
 	"time"
 
-	uuid "github.com/satori/go.uuid"
+	uuid "github.com/google/uuid"
 )
 
 type Card struct {
@@ -62,10 +61,7 @@ func (t *ToDo) ToString() string {
 // Completed: False
 // It returns a new ToDo struct
 func MakeToDo(title, description string) *ToDo {
-	id, err := uuid.NewV4()
-	if err != nil {
-		log.Fatal("Fatal error creating UUID")
-	}
+	id := uuid.New()
 
 	todo := ToDo{id, title, description, time.Now(), time.Time{}, false, nil, nil}
 	return &todo
@@ -134,10 +130,7 @@ func (tdl *ToDoList) AppendToDo(newToDo *ToDo) {
 }
 
 func (tdl *ToDoList) CreateToDo(newToDo ToDo) *ToDo {
-	id, err := uuid.NewV4()
-	if err != nil {
-		panic(err)
-	}
+	id := uuid.New()
 
 	newToDo.ID = id
 	newToDo.StartedOn = time.Now()

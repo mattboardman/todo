@@ -10,9 +10,9 @@ import (
 	"strings"
 	"sync"
 
+	uuid "github.com/google/uuid"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
-	uuid "github.com/satori/go.uuid"
 )
 
 var tdll = ToDoList{nil, nil, 0}
@@ -20,7 +20,7 @@ var tdll = ToDoList{nil, nil, 0}
 func main() {
 
 	tdll.AppendToDo(MakeToDo("First", "Testing"))
-	id, _ := uuid.FromString("44f52c01-ddf2-459d-be19-44c057719f74")
+	id, _ := uuid.Parse("44f52c01-ddf2-459d-be19-44c057719f74")
 
 	test := MakeToDo("Second", "Testing")
 	test.ID = id
@@ -93,7 +93,7 @@ func ToDoByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	vars := mux.Vars(r)
-	id, _ := uuid.FromString(vars["id"])
+	id, _ := uuid.Parse(vars["id"])
 	todo, err := tdll.GetToDoByID(id)
 	if err != nil {
 		fmt.Printf("Error: %s", err)
@@ -113,7 +113,7 @@ func ToDoRemoveByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	vars := mux.Vars(r)
-	id, _ := uuid.FromString(vars["id"])
+	id, _ := uuid.Parse(vars["id"])
 	tdll.RemoveToDoByID(id)
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
