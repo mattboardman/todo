@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.3.1/css/foundation.min.css">
+<meta charset="utf-8">
+</head>
+<body>
+<div class="container" id="app">
+    <div class="columns medium-4">
+      <section class="form">
+        <div class="card">
+              <div class="card-section">
+                <p> Create To-Do </p>
+              </div>
+              <div class="card-section">
+                <input v-model="form.title" placeholder="Title">
+              </div>
+              <div class="card-section">
+                <textarea v-model="form.description" placeholder="Description goes here"></textarea>
+              </div>
+              <!-- <div class="card-section">
+                <input v-model="form.started" placeholder="DD/MM/YYYY">
+              </div>
+              <div class="card-section">
+                <input v-model="form.completed" placeholder="DD/MM/YYYY">
+              </div>
+              <div class="card-section">
+                <span>Completed:</span>
+                <br />
+                <input type="radio" value="true" v-model="form.iscompleted">
+                <label for="true">Yes</label>
+                <input type="radio" value="false" v-model="form.iscompleted">
+                <label for="false">No</label>
+              </div>   -->
+              <div class="card-section">
+                <button v-on:click="create(form.title, form.description, form.started, form.completed, form.iscompleted)">Create</button>
+              </div>
+        </div>
+      </section>
+        <div class="columns medium-4" v-for="(result, index) in results">
+            <div class="card">
+                  <div class="card-section">
+                    <p> To-Do </p>
+                  </div>
+                  <div class="card-divider">
+                    <p>{{ result.id }}</p>
+                  </div>
+                  <div class="card-section">
+                    <p> {{ result.title }}</p>
+                  </div>
+                  <div class="card-section">
+                        <p>{{ result.description }}</p>
+                  </div>
+                  <div class="card-section">
+                        <p>{{ result.started }}</p>
+                  </div>
+                  <div class="card-section">
+                        <p>{{ result.completed }}</p>
+                  </div>
+                  <div class="card-section">
+                        <p>{{ result.iscompleted }}</p>
+                  </div>  
+                  <div class="card-section">
+                    <button v-on:click="remove(result.id)">Delete</button>
+                  </div>
+            </div>
+        </div>    
+      </div>    
+</div>
+
+<script src="https://unpkg.com/vue"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script type="text/javascript" src="crud.js">  
+
+</script>
+
+</body>
+</html>

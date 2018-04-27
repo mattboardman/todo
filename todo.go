@@ -9,6 +9,11 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+type Card struct {
+	Title       string `json:"title,omitempty"`
+	Description string `json:"description,omitempty"`
+}
+
 // ToDo is a node in a linked list
 // It contains self-descriptive properties
 type ToDo struct {
@@ -17,7 +22,7 @@ type ToDo struct {
 	Description string    `json:"description,omitempty"`
 	StartedOn   time.Time `json:"started,omitempty"`
 	CompletedOn time.Time `json:"completed,omitempty"`
-	IsCompleted bool      `json:"IsCompleted,omitempty"`
+	IsCompleted bool      `json:"iscompleted,omitempty"`
 	Next        *ToDo     `json:"-"`
 	Prev        *ToDo     `json:"-"`
 }

@@ -7,6 +7,8 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
+	"sync"
 
 	"github.com/gorilla/mux"
 	uuid "github.com/satori/go.uuid"
@@ -25,41 +27,74 @@ func main() {
 
 	router := NewRouter()
 
-	log.Fatal(http.ListenAndServe(":8080", router))
+	/* 	allowedHeaders := handlers.AllowedHeaders([]string{"X-Requested-With"})
+	   	allowedOrigins := handlers.AllowedOrigins([]string{"*"})
+	   	allowedMethods := handlers.AllowedMethods([]string{
+	   		"GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS"}) */
+
+	wg := &sync.WaitGroup{}
+
+	wg.Add(1)
+	go func() {
+		log.Fatal(http.ListenAndServe(":8080", (router)))
+		wg.Done()
+	}()
+
+	fs := http.FileServer(http.Dir("frontend"))
+	http.Handle("/", fs)
+
+	log.Println("Listening...")
+
+	wg.Add(1)
+	go func() {
+		http.ListenAndServe(":1080", nil)
+		wg.Done()
+	}()
+	wg.Wait()
 }
 
 func ToDoIndex(w http.ResponseWriter, r *http.Request) {
+	setupResponse(&w, r)
+	if (*r).Method == "OPTIONS" {
+		return
+	}
+
 	todos := tdll.GetArray(tdll.Size)
 	json.NewEncoder(w).Encode(todos)
 }
 
 func ToDoCreate(w http.ResponseWriter, r *http.Request) {
-	var todo ToDo
-	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
-	if err != nil {
-		panic(err)
-	}
-	if err := r.Body.Close(); err != nil {
-		panic(err)
-	}
-	if err := json.Unmarshal(body, &todo); err != nil {
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(422)
-		if err := json.NewEncoder(w).Encode(err); err != nil {
-			panic(err)
-		}
+	setupResponse(&w, r)
+	if (*r).Method == "OPTIONS" {
+		return
 	}
 
-	newToDo := tdll.CreateToDo(todo)
-	tdll.AppendToDo(newToDo)
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusCreated)
-	if err := json.NewEncoder(w).Encode(newToDo); err != nil {
-		panic(err)
+	var todo ToDo
+
+	params := strings.Split(r.URL.RawQuery, "?")
+	title := strings.Split(params[0], "=")
+	description := strings.Split(params[1], "=")
+	if todo.Title = title[1]; todo.Title == "" {
+		w.WriteHeader(422)
+		w.WriteHeader(http.StatusBadRequest)
+	} else {
+		todo.Description = description[1]
+		newToDo := tdll.CreateToDo(todo)
+		tdll.AppendToDo(newToDo)
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		w.WriteHeader(http.StatusCreated)
+		if err := json.NewEncoder(w).Encode(newToDo); err != nil {
+			panic(err)
+		}
 	}
 }
 
 func ToDoByID(w http.ResponseWriter, r *http.Request) {
+	setupResponse(&w, r)
+	if (*r).Method == "OPTIONS" {
+		return
+	}
+
 	vars := mux.Vars(r)
 	id, _ := uuid.FromString(vars["id"])
 	todo, err := tdll.GetToDoByID(id)
@@ -75,14 +110,24 @@ func ToDoByID(w http.ResponseWriter, r *http.Request) {
 }
 
 func ToDoRemoveByID(w http.ResponseWriter, r *http.Request) {
+	setupResponse(&w, r)
+	if (*r).Method == "OPTIONS" {
+		return
+	}
+
 	vars := mux.Vars(r)
 	id, _ := uuid.FromString(vars["id"])
 	tdll.RemoveToDoByID(id)
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusCreated)
+	w.WriteHeader(http.StatusOK)
 }
 
 func ToDoUpdate(w http.ResponseWriter, r *http.Request) {
+	setupResponse(&w, r)
+	if (*r).Method == "OPTIONS" {
+		return
+	}
+
 	var todo ToDo
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
 	if err != nil {
@@ -105,4 +150,10 @@ func ToDoUpdate(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewEncoder(w).Encode(todo); err != nil {
 		panic(err)
 	}
+}
+
+func setupResponse(w *http.ResponseWriter, req *http.Request) {
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
+	(*w).Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+	(*w).Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
 }

@@ -27,6 +27,12 @@ var routes = Routes{
 		ToDoCreate,
 	},
 	Route{
+		"ToDoOptions",
+		"OPTIONS",
+		"/v1/todo",
+		ToDoCreate,
+	},
+	Route{
 		"ToDoUpdate",
 		"PUT",
 		"/v1/todo",
@@ -42,6 +48,6 @@ var routes = Routes{
 		"ToDoRemoveByID",
 		"DELETE",
 		"/v1/todo/{id}",
-		ToDoByID,
+		ToDoRemoveByID,
 	},
 }
