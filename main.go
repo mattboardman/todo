@@ -28,7 +28,7 @@ func main() {
 
 	router := NewRouter()
 
-	allowedHeaders := handlers.AllowedHeaders([]string{"X-Requested-With"})
+	allowedHeaders := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
 	allowedOrigins := handlers.AllowedOrigins([]string{"*"})
 	allowedMethods := handlers.AllowedMethods([]string{
 		"GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS"})
@@ -143,7 +143,7 @@ func ToDoUpdate(w http.ResponseWriter, r *http.Request) {
 
 	tdll.UpdateToDoEntity(todo)
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusCreated)
+	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(todo); err != nil {
 		panic(err)
 	}

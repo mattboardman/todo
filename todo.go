@@ -22,7 +22,7 @@ type ToDo struct {
 	Description string    `json:"description,omitempty"`
 	StartedOn   time.Time `json:"started,omitempty"`
 	CompletedOn time.Time `json:"completed,omitempty"`
-	IsCompleted bool      `json:"iscompleted,omitempty"`
+	IsCompleted bool      `json:"iscompleted"`
 	Next        *ToDo     `json:"-"`
 	Prev        *ToDo     `json:"-"`
 }
@@ -109,6 +109,9 @@ func (tdl *ToDoList) UpdateToDoEntity(newToDo ToDo) error {
 	if newToDo.IsCompleted {
 		oldToDo.CompletedOn = time.Now()
 		oldToDo.IsCompleted = true
+	} else if !newToDo.IsCompleted && oldToDo.IsCompleted {
+		oldToDo.CompletedOn = time.Time{}
+		oldToDo.IsCompleted = false
 	}
 
 	return nil

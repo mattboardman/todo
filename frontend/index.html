@@ -8,7 +8,7 @@
 <body>
 <div class="container" id="app">
     <div >
-      <section class="form">
+      <section style="margin-left: 25%;margin-right:25%"  class="form">
         <div class="card">
               <div class="card-section">
                 <p> Create To-Do </p>
@@ -17,7 +17,7 @@
                 <input v-model="form.title" placeholder="Title">
               </div>
               <div class="card-section">
-                <textarea v-model="form.description" placeholder="Description goes here"></textarea>
+                <textarea style="width:100%;height:5em;" v-model="form.description" placeholder="Description goes here"></textarea>
               </div>
               <!-- <div class="card-section">
                 <input v-model="form.started" placeholder="DD/MM/YYYY">
@@ -34,7 +34,7 @@
                 <label for="false">No</label>
               </div>   -->
               <div class="card-section">
-                <button v-on:click="create(form.title, form.description, form.started, form.completed, form.iscompleted)">Create</button>
+                <button class="button" v-on:click="create(form.title, form.description)">Create</button>
               </div>
         </div>
       </section>
@@ -44,25 +44,34 @@
                     <p> To-Do </p>
                   </div>
                   <div class="card-divider">
-                    <p>{{ result.id }}</p>
+                    <p>ID: {{ result.id }}</p>
                   </div>
                   <div class="card-section">
-                    <p> {{ result.title }}</p>
+                    <p>Title</p>
+                    <input v-model="result.title"> 
                   </div>
                   <div class="card-section">
-                        <p>{{ result.description }}</p>
+                      <p>Description</p>
+                      <textarea v-model="result.description"> </textarea>
                   </div>
                   <div class="card-section">
-                        <p>{{ result.started }}</p>
+                      <p>Started On</p>
+                      <p>{{ result.started }}</p>
                   </div>
                   <div class="card-section">
-                        <p>{{ result.completed }}</p>
+                      <p>Completed On</p>
+                      <p>{{ result.completed }}</p>
                   </div>
                   <div class="card-section">
-                        <p>{{ result.iscompleted }}</p>
+                      <p>Completed</p>
+                      <input class="radio" type="radio" value="true" v-model="result.iscompleted" checked=""> 
+                      <label for="radio" >Yes</label>
+                      <input class="radio" type="radio" value="false" v-model="result.iscompleted" checked=""> 
+                      <label for="radio"> No</label>
                   </div>  
                   <div class="card-section">
-                    <button v-on:click="remove(result.id)">Delete</button>
+                    <button class="alert button" v-on:click="remove(result.id)">Delete</button>
+                    <button class="success button" style="margin-left:3em;margin-top:-1.1em" v-on:click="update(result.id, result.title, result.description, result.iscompleted)">Update</button>
                   </div>
             </div>
         </div>    
@@ -71,9 +80,7 @@
 
 <script src="https://unpkg.com/vue"></script>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-<script type="text/javascript" src="crud.js">  
-
-</script>
+<script type="text/javascript" src="crud.js"></script>
 
 </body>
 </html>

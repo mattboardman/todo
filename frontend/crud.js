@@ -9,22 +9,22 @@ const vm = new Vue({
             description: '',
             started: '',
             completed: '',
-            iscompleted: ''
+            iscompleted: '',
         }
     },
     methods: {
         remove: function (index) {
             axios.delete("http://localhost:8080/v1/todo/"+index);
         },
-        create: function(title, description, started, completed, iscompleted) {
-            axios.post("http://localhost:8080/v1/todo?title="+title+"?description="+description
-                            //    title:title, 
-                              //  description:description
-                                //startedon:started,
-                                //completedon:completed, 
-                                //iscompleted:iscompleted
-                          //  }
-                        );
+        create: function(title, description) {
+            axios.post("http://localhost:8080/v1/todo?title="+title+"?description="+description                        );
+        },
+        update: function(index ,title, description, iscompleted) {
+            var flag = false;
+            if (iscompleted === "true") {
+                flag = true;
+            }
+            axios.put("http://localhost:8080/v1/todo", {id: index, title: title, description: description, iscompleted: flag});
         }
     },
     mounted() {
