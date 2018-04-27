@@ -10,6 +10,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	uuid "github.com/satori/go.uuid"
 )
@@ -27,16 +28,16 @@ func main() {
 
 	router := NewRouter()
 
-	/* 	allowedHeaders := handlers.AllowedHeaders([]string{"X-Requested-With"})
-	   	allowedOrigins := handlers.AllowedOrigins([]string{"*"})
-	   	allowedMethods := handlers.AllowedMethods([]string{
-	   		"GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS"}) */
+	allowedHeaders := handlers.AllowedHeaders([]string{"X-Requested-With"})
+	allowedOrigins := handlers.AllowedOrigins([]string{"*"})
+	allowedMethods := handlers.AllowedMethods([]string{
+		"GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS"})
 
 	wg := &sync.WaitGroup{}
 
 	wg.Add(1)
 	go func() {
-		log.Fatal(http.ListenAndServe(":8080", (router)))
+		log.Fatal(http.ListenAndServe(":8080", handlers.CORS(allowedHeaders, allowedOrigins, allowedMethods)(router)))
 		wg.Done()
 	}()
 
@@ -54,13 +55,9 @@ func main() {
 }
 
 func ToDoIndex(w http.ResponseWriter, r *http.Request) {
-	setupResponse(&w, r)
-	if (*r).Method == "OPTIONS" {
-		return
+	if todos := tdll.GetArray(tdll.Size); todos != nil {
+		json.NewEncoder(w).Encode(todos)
 	}
-
-	todos := tdll.GetArray(tdll.Size)
-	json.NewEncoder(w).Encode(todos)
 }
 
 func ToDoCreate(w http.ResponseWriter, r *http.Request) {
@@ -103,7 +100,7 @@ func ToDoByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusCreated)
+	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(todo); err != nil {
 		panic(err)
 	}
@@ -154,6 +151,6 @@ func ToDoUpdate(w http.ResponseWriter, r *http.Request) {
 
 func setupResponse(w *http.ResponseWriter, req *http.Request) {
 	(*w).Header().Set("Access-Control-Allow-Origin", "*")
-	(*w).Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+	(*w).Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE, HEAD")
 	(*w).Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
 }

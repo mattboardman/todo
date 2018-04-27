@@ -75,6 +75,10 @@ func (tdl *ToDoList) GetArray(size int) ToDos {
 	if size > tdl.Size {
 		size = tdl.Size
 	}
+	if size == 0 {
+		return nil
+	}
+
 	count := 0
 	todos := make(ToDos, size)
 	currentNode := tdl.Head
@@ -154,13 +158,12 @@ func (tdl *ToDoList) RemoveToDoByID(id uuid.UUID) error {
 			tdl.Head = todo.Next
 			todo.Next.Prev = nil
 		} else {
-			tdl.clearList()
+			tdl.Head = nil
+			tdl.Tail = nil
 		}
 	} else if tdl.Tail == todo {
 		tdl.Tail = todo.Prev
 		tdl.Tail.Next = nil
-		tdl.Size--
-		return nil
 	} else {
 		todo.Prev.Next = todo.Next
 		todo.Next.Prev = todo.Prev
