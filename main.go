@@ -16,15 +16,23 @@ import (
 )
 
 var tdll = ToDoList{nil, nil, 0}
+var bstID = Tree{nil}
+var bstTitle = Tree{nil}
 
 func main() {
-
-	tdll.AppendToDo(MakeToDo("First", "Testing"))
+	first := MakeToDo("First", "Testing")
 	id, _ := uuid.Parse("44f52c01-ddf2-459d-be19-44c057719f74")
+	second := MakeToDo("Second", "Testing")
 
-	test := MakeToDo("Second", "Testing")
-	test.ID = id
-	tdll.AppendToDo(test)
+	second.ID = id
+	tdll.AppendToDo(first)
+	tdll.AppendToDo(second)
+
+	bstID.InsertByID(first)
+	bstID.InsertByID(second)
+
+	bstTitle.InsertByString(first)
+	bstTitle.InsertByString(second)
 
 	router := NewRouter()
 
@@ -61,11 +69,6 @@ func ToDoIndex(w http.ResponseWriter, r *http.Request) {
 }
 
 func ToDoCreate(w http.ResponseWriter, r *http.Request) {
-	setupResponse(&w, r)
-	if (*r).Method == "OPTIONS" {
-		return
-	}
-
 	var todo ToDo
 
 	params := strings.Split(r.URL.RawQuery, "?")
@@ -78,6 +81,9 @@ func ToDoCreate(w http.ResponseWriter, r *http.Request) {
 		todo.Description = description[1]
 		newToDo := tdll.CreateToDo(todo)
 		tdll.AppendToDo(newToDo)
+		bstID.InsertByID(newToDo)
+		bstTitle.InsertByString(newToDo)
+
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusCreated)
 		if err := json.NewEncoder(w).Encode(newToDo); err != nil {
@@ -87,11 +93,6 @@ func ToDoCreate(w http.ResponseWriter, r *http.Request) {
 }
 
 func ToDoByID(w http.ResponseWriter, r *http.Request) {
-	setupResponse(&w, r)
-	if (*r).Method == "OPTIONS" {
-		return
-	}
-
 	vars := mux.Vars(r)
 	id, _ := uuid.Parse(vars["id"])
 	todo, err := tdll.GetToDoByID(id)
@@ -107,11 +108,6 @@ func ToDoByID(w http.ResponseWriter, r *http.Request) {
 }
 
 func ToDoRemoveByID(w http.ResponseWriter, r *http.Request) {
-	setupResponse(&w, r)
-	if (*r).Method == "OPTIONS" {
-		return
-	}
-
 	vars := mux.Vars(r)
 	id, _ := uuid.Parse(vars["id"])
 	tdll.RemoveToDoByID(id)
@@ -120,11 +116,6 @@ func ToDoRemoveByID(w http.ResponseWriter, r *http.Request) {
 }
 
 func ToDoUpdate(w http.ResponseWriter, r *http.Request) {
-	setupResponse(&w, r)
-	if (*r).Method == "OPTIONS" {
-		return
-	}
-
 	var todo ToDo
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
 	if err != nil {
@@ -141,7 +132,11 @@ func ToDoUpdate(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	old, _ := tdll.GetToDoByID(todo.ID)
+	bstTitle.DeleteByString(old.Title)
 	tdll.UpdateToDoEntity(todo)
+	bstTitle.InsertByString(&todo)
+
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(todo); err != nil {
@@ -149,8 +144,14 @@ func ToDoUpdate(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func setupResponse(w *http.ResponseWriter, req *http.Request) {
-	(*w).Header().Set("Access-Control-Allow-Origin", "*")
-	(*w).Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE, HEAD")
-	(*w).Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+func ToDoSearchByTitle(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	title, _ := vars["title"]
+	todo := bstTitle.FindByString(title)
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(todo); err != nil {
+		panic(err)
+	}
 }

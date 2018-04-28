@@ -177,19 +177,23 @@ func (tdl *ToDoList) GetToDoByID(id uuid.UUID) (*ToDo, error) {
 		return nil, errors.New("No To-Do items added yet")
 	}
 
-	currentNode := tdl.Head
-	for currentNode.Next != nil {
-		if currentNode.ID == id {
-			return currentNode, nil
-		}
-		currentNode = currentNode.Next
-	}
+	/* 	currentNode := tdl.Head
+	   	for currentNode.Next != nil {
+	   		if currentNode.ID == id {
+	   			return currentNode, nil
+	   		}
+	   		currentNode = currentNode.Next
+	   	}
 
-	if currentNode.ID == id {
-		return currentNode, nil
-	}
+	   	if currentNode.ID == id {
+	   		return currentNode, nil
+	   	} */
 
-	return nil, errors.New("Could not find To-Do item")
+	if node := bstID.FindByID(id); node == nil {
+		return nil, errors.New("Could not find To-Do item")
+	} else {
+		return node, nil
+	}
 }
 
 func (tdl *ToDoList) clearList() {

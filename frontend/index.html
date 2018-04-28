@@ -7,8 +7,24 @@
 </head>
 <body>
 <div class="container" id="app">
-    <div >
-      <section style="margin-left: 25%;margin-right:25%"  class="form">
+      <section class="form">
+        <div class="card">
+          <p style="margin-left: 1.5em">Search To-Dos</p>
+          <div class="card-section" style="margin-left:-1em">
+            <input v-model="form.query" style="margin-left: 1.5em;">  
+            <br /> 
+            <button class="button small" v-on:click="search(form.query)" style="margin-left: 14.5em; margin-top:.5em">Search</button>
+          </div>
+          <div class="card-section" id="search-results" style="visibility: hidden; margin-left: .5em;background-color:royalblue; color:white"> 
+              <p>Title: <span id="title"></span></p>  
+              <p>Description: <span id="description"></span></p>
+              <p>Started: <span id="started"></span></p>
+              <p>Completed: <span id="completed"></span></p>
+              <p>Is Completed: <span id="iscompleted"></span></p>
+          </div>
+        </div>  
+      </section>
+      <section class="columns medium-4"  class="form">
         <div class="card">
               <div class="card-section">
                 <p> Create To-Do </p>
@@ -19,22 +35,8 @@
               <div class="card-section">
                 <textarea style="width:100%;height:5em;" v-model="form.description" placeholder="Description goes here"></textarea>
               </div>
-              <!-- <div class="card-section">
-                <input v-model="form.started" placeholder="DD/MM/YYYY">
-              </div>
               <div class="card-section">
-                <input v-model="form.completed" placeholder="DD/MM/YYYY">
-              </div>
-              <div class="card-section">
-                <span>Completed:</span>
-                <br />
-                <input type="radio" value="true" v-model="form.iscompleted">
-                <label for="true">Yes</label>
-                <input type="radio" value="false" v-model="form.iscompleted">
-                <label for="false">No</label>
-              </div>   -->
-              <div class="card-section">
-                <button class="button" v-on:click="create(form.title, form.description)">Create</button>
+                <button class="button success" v-on:click="create(form.title, form.description)">Create</button>
               </div>
         </div>
       </section>
@@ -71,7 +73,7 @@
                   </div>  
                   <div class="card-section">
                     <button class="alert button" v-on:click="remove(result.id)">Delete</button>
-                    <button class="success button" style="margin-left:3em;margin-top:-1.1em" v-on:click="update(result.id, result.title, result.description, result.iscompleted)">Update</button>
+                    <button class="warning button" style="margin-left:3em;margin-top:-1.1em" v-on:click="update(result.id, result.title, result.description, result.iscompleted)">Update</button>
                   </div>
             </div>
         </div>    

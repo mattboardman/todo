@@ -44,4 +44,10 @@ var routes = Routes{
 		"/v1/todo/{id}",
 		ToDoRemoveByID,
 	},
+	Route{
+		"ToDoSearchByTitle",
+		"GET",
+		"/v1/todo/search/{title}",
+		ToDoSearchByTitle,
+	},
 }
