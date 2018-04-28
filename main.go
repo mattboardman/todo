@@ -6,9 +6,11 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"net/http"
 	"strings"
 	"sync"
+	"time"
 
 	uuid "github.com/google/uuid"
 	"github.com/gorilla/handlers"
@@ -33,6 +35,9 @@ func main() {
 
 	bstTitle.InsertByString(first)
 	bstTitle.InsertByString(second)
+
+	addToDos(30000000) // 30,000,000
+	log.Println("Done Loading Test Data")
 
 	router := NewRouter()
 
@@ -63,7 +68,7 @@ func main() {
 }
 
 func ToDoIndex(w http.ResponseWriter, r *http.Request) {
-	if todos := tdll.GetArray(tdll.Size); todos != nil {
+	if todos := tdll.GetArray(100); todos != nil {
 		json.NewEncoder(w).Encode(todos)
 	}
 }
@@ -147,6 +152,19 @@ func ToDoUpdate(w http.ResponseWriter, r *http.Request) {
 func ToDoSearchByTitle(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	title, _ := vars["title"]
+	//todo := bstTitle.FindByString(title)
+	todo, _ := tdll.GetToDoByTitle(title)
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(todo); err != nil {
+		panic(err)
+	}
+}
+
+func ToDoImprovedSearchByTitle(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	title, _ := vars["title"]
 	todo := bstTitle.FindByString(title)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -154,4 +172,30 @@ func ToDoSearchByTitle(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewEncoder(w).Encode(todo); err != nil {
 		panic(err)
 	}
+}
+
+func addToDos(num int) {
+	bottom := "zzzzzz"
+	for i := 0; i < num; i++ {
+		todo := MakeToDo(RandStringRunes(10), bottom)
+		tdll.AppendToDo(todo)
+	}
+	todo := MakeToDo(bottom, bottom)
+	tdll.AppendToDo(todo)
+	bstID.InsertByID(todo)
+	bstTitle.InsertByString(todo)
+}
+
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
+
+var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
+func RandStringRunes(n int) string {
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letterRunes[rand.Intn(len(letterRunes))]
+	}
+	return string(b)
 }

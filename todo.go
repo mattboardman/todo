@@ -82,9 +82,12 @@ func (tdl *ToDoList) GetArray(size int) ToDos {
 		panic(errors.New("List has no items"))
 	}
 
-	for count < size || currentNode != nil {
+	for count < size-1 && currentNode != nil {
 		todos[count] = *currentNode
 		count++
+		if count == 98 {
+			count = 98
+		}
 		currentNode = currentNode.Next
 	}
 
@@ -187,13 +190,41 @@ func (tdl *ToDoList) GetToDoByID(id uuid.UUID) (*ToDo, error) {
 
 	   	if currentNode.ID == id {
 	   		return currentNode, nil
-	   	} */
+	   	}
+
+	   	return nil, errors.New("Could not find To-Do item") */
 
 	if node := bstID.FindByID(id); node == nil {
 		return nil, errors.New("Could not find To-Do item")
 	} else {
 		return node, nil
 	}
+}
+
+func (tdl *ToDoList) GetToDoByTitle(value string) (*ToDo, error) {
+	if tdl.Head == nil {
+		return nil, errors.New("No To-Do items added yet")
+	}
+
+	currentNode := tdl.Head
+	for currentNode.Next != nil {
+		if currentNode.Title == value {
+			return currentNode, nil
+		}
+		currentNode = currentNode.Next
+	}
+
+	if currentNode.Title == value {
+		return currentNode, nil
+	}
+
+	return nil, errors.New("Could not find To-Do item")
+
+	/* 	if node := bstID.FindByID(id); node == nil {
+	   		return nil, errors.New("Could not find To-Do item")
+	   	} else {
+	   		return node, nil
+	   	} */
 }
 
 func (tdl *ToDoList) clearList() {

@@ -30,6 +30,8 @@ const vm = new Vue({
             window.location.reload()
         },        
         search: function(query) {
+            var date = new Date()
+            var start = window.performance.now()
             axios.get("http://localhost:8080/v1/todo/search/"+query).then(response => {
                 document.getElementById('title').innerHTML = response.data.title;
                 document.getElementById('description').innerHTML = response.data.description;
@@ -38,6 +40,22 @@ const vm = new Vue({
                 document.getElementById('iscompleted').innerHTML = response.data.iscompleted;
                 document.getElementById('search-results').style.visibility = "visible";
             });
+            var finish = window.performance.now()
+            document.getElementById('search-time').innerHTML = (finish - start)
+        },
+        searchV2: function(query) {
+            var date = new Date()
+            var start = window.performance.now()
+            axios.get("http://localhost:8080/v2/todo/search/"+query).then(response => {
+                document.getElementById('title').innerHTML = response.data.title;
+                document.getElementById('description').innerHTML = response.data.description;
+                document.getElementById('started').innerHTML = response.data.started;
+                document.getElementById('completed').innerHTML = response.data.completed;
+                document.getElementById('iscompleted').innerHTML = response.data.iscompleted;
+                document.getElementById('search-results').style.visibility = "visible";
+            });
+            var finish = window.performance.now()
+            document.getElementById('search-time').innerHTML = (finish - start)
         },
     },
     mounted() {

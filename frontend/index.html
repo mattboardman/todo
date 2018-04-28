@@ -14,6 +14,7 @@
             <input v-model="form.query" style="margin-left: 1.5em;">  
             <br /> 
             <button class="button small" v-on:click="search(form.query)" style="margin-left: 14.5em; margin-top:.5em">Search</button>
+            <button class="button alert small" v-on:click="searchV2(form.query)" style="margin-left: 14.5em; margin-top:.5em">Ludicrous Speed Search</button>
           </div>
           <div class="card-section" id="search-results" style="visibility: hidden; margin-left: .5em;background-color:royalblue; color:white"> 
               <p>Title: <span id="title"></span></p>  
@@ -21,6 +22,8 @@
               <p>Started: <span id="started"></span></p>
               <p>Completed: <span id="completed"></span></p>
               <p>Is Completed: <span id="iscompleted"></span></p>
+              <hr />
+              <p>Search Time: <span id='search-time'></span> seconds</p>
           </div>
         </div>  
       </section>
