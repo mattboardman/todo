@@ -242,3 +242,7 @@ func (t *Tree) DeleteByString(value string) error {
 	}
 	return nil
 }
+
+func (t *Tree) clearTree() {
+	t.Root = nil
+}

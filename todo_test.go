@@ -4,21 +4,23 @@ import (
 	"testing"
 	"time"
 
-	uuid "github.com/satori/go.uuid"
+	uuid "github.com/google/uuid"
 )
 
 var tdl ToDoList
 
-var id1, _ = uuid.NewV4()
-var id2, _ = uuid.NewV4()
-var id3, _ = uuid.NewV4()
-var id4, _ = uuid.NewV4()
+var id1 = uuid.New()
+var id2 = uuid.New()
+var id3 = uuid.New()
+var id4 = uuid.New()
 var t1 = ToDo{id1, "First", "Testing", time.Now(), time.Time{}, false, nil, nil}
 var t2 = ToDo{id2, "Second", "Testing", time.Now(), time.Time{}, false, nil, nil}
 var t3 = ToDo{id3, "Third", "Testing", time.Now(), time.Time{}, false, nil, nil}
 var t4 = ToDo{id4, "Fourth", "Testing", time.Now(), time.Time{}, false, nil, nil}
 
 func TestIsEmpty(t *testing.T) {
+	tdl.clearList()
+
 	if tdl.Head == nil && !tdl.IsEmpty() {
 		t.Errorf("list should be empty")
 	}
@@ -28,11 +30,11 @@ func TestIsEmpty(t *testing.T) {
 	if tdl.Head != nil && tdl.IsEmpty() {
 		t.Errorf("list should NOT be empty")
 	}
-
-	tdl.clearList()
 }
 
 func TestAppend(t *testing.T) {
+	tdl.clearList()
+
 	if !tdl.IsEmpty() {
 		t.Errorf("list should be empty")
 	}
@@ -55,6 +57,10 @@ func TestAppend(t *testing.T) {
 }
 
 func TestGetById(t *testing.T) {
+	tdl.clearList()
+
+	tdl.AppendToDo(&t1)
+
 	todo, err := tdl.GetToDoByID(id1)
 	if err != nil {
 		t.Errorf("Unexpected error %s", err)
@@ -64,7 +70,28 @@ func TestGetById(t *testing.T) {
 		t.Errorf("wrong entity returned, expected ID: 1 and got %d", id)
 	}
 
-	fail, _ := uuid.NewV4()
+	fail := uuid.New()
+	todo, err = tdl.GetToDoByID(fail)
+	if err == nil {
+		t.Errorf("did not raise error properly for invalid GET")
+	}
+}
+
+func TestGetByTitle(t *testing.T) {
+	tdl.clearList()
+
+	tdl.AppendToDo(&t1)
+
+	todo, err := tdl.GetToDoByTitle(t1.Title)
+	if err != nil {
+		t.Errorf("Unexpected error %s", err)
+	}
+
+	if title := todo.Title; title != t1.Title {
+		t.Errorf("wrong entity returned, expected Title: %s and got %s", t1.Title, title)
+	}
+
+	fail := uuid.New()
 	todo, err = tdl.GetToDoByID(fail)
 	if err == nil {
 		t.Errorf("did not raise error properly for invalid GET")
@@ -72,19 +99,26 @@ func TestGetById(t *testing.T) {
 }
 
 func TestRemoveById(t *testing.T) {
+	tdl.clearList()
+
+	tdl.AppendToDo(&t1)
 	err := tdl.RemoveToDoByID(id1)
 	if err != nil {
 		t.Errorf("unexpected error %s", err)
 	}
 
-	if size := tdl.Size; size != 2 {
-		t.Errorf("wrong count, expected 2 and got %d", size)
+	if size := tdl.Size; size != 0 {
+		t.Errorf("wrong count, expected 0 and got %d", size)
 	}
 
+	tdl.AppendToDo(&t1)
+	tdl.AppendToDo(&t2)
+	tdl.RemoveToDoByID(id1)
 	if tdl.Head != &t2 {
 		t.Errorf("head node was improperly removed")
 	}
 
+	tdl.AppendToDo(&t3)
 	tdl.RemoveToDoByID(id3)
 	if tdl.Tail != &t2 {
 		t.Errorf("tail node was improperly removed")
@@ -94,6 +128,8 @@ func TestRemoveById(t *testing.T) {
 }
 
 func TestUpdate(t *testing.T) {
+	tdl.clearList()
+
 	tdl.AppendToDo(&t1)
 	expectedTime := time.Now()
 	expectedToDo := ToDo{
