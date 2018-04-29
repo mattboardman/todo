@@ -1,36 +1,44 @@
 <!doctype html>
 <html lang="en">
 <head>
-
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.3.1/css/foundation.min.css">
 <meta charset="utf-8">
 </head>
+
 <body>
 <div class="container" id="app">
-      <section class="form">
-        <div class="card">
-          <p style="margin-left: 1.5em">Search To-Dos</p>
-          <div class="card-section" style="margin-left:-1em">
-            <input v-model="form.query" style="margin-left: 1.5em;">  
+  <section class="card">
+    <button class="button expanded" v-on:click="reverseIndex()">Reverse Order of ToDos</button>
+    <button class="button success expanded" v-on:click="completed()">Completed ToDos</button>
+  </section>
+      <section class="card" class="columns medium-12" class="form">
+        <div style="margin-left:auto; margin-right: auto; width: 10em; text-align: center">
+          <h5>Search ToDos</h5>
+          <div class="card-section">
+            <input v-model="form.query" style="margin-left: -2.9em">  
             <br /> 
-            <button class="button small" v-on:click="search(form.query)" style="margin-left: 14.5em; margin-top:.5em">Search</button>
-            <button class="button alert small" v-on:click="searchV2(form.query)" style="margin-left: 14.5em; margin-top:.5em">Ludicrous Speed Search</button>
+            <button class="button alert small" v-on:click="searchV2(form.query)" style=" margin-top:1em">Ludicrous Speed Search</button>
+            <br />
+            <button class="button small" v-on:click="search(form.query)" >Search</button>
           </div>
+        </div>
+        <div>
           <div class="card-section" id="search-results" style="visibility: hidden; margin-left: .5em;background-color:royalblue; color:white"> 
-              <p>Title: <span id="title"></span></p>  
-              <p>Description: <span id="description"></span></p>
-              <p>Started: <span id="started"></span></p>
-              <p>Completed: <span id="completed"></span></p>
-              <p>Is Completed: <span id="iscompleted"></span></p>
+              <p><span id="uuid"></span></p>  
+              <p> <span id="title"></span></p>  
+              <p><span id="description"></span></p>
+              <p><span id="started"></span></p>
+              <p><span id="completed"></span></p>
+              <p><span id="iscompleted"></span></p>
               <hr />
-              <p>Search Time: <span id='search-time'></span> seconds</p>
+              <p><span id='search-time'></span></p>
           </div>
         </div>  
       </section>
       <section class="columns medium-4"  class="form">
         <div class="card">
               <div class="card-section">
-                <p> Create To-Do </p>
+                <p> Create ToDo </p>
               </div>
               <div class="card-section">
                 <input v-model="form.title" placeholder="Title">
@@ -46,7 +54,7 @@
         <div class="columns medium-4" v-for="(result, index) in results">
             <div class="card">
                   <div class="card-section">
-                    <p> To-Do </p>
+                    <p> ToDo </p>
                   </div>
                   <div class="card-divider">
                     <p>ID: {{ result.id }}</p>

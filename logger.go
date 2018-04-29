@@ -6,6 +6,7 @@ import (
 	"time"
 )
 
+// Logger logs all of the router handler functions as they are called
 func Logger(inner http.Handler, name string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()

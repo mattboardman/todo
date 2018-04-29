@@ -4,6 +4,11 @@ import (
 	"net/http"
 )
 
+// Route struct contains
+// Route Name
+// REST request
+// Path
+// Handler Function
 type Route struct {
 	Name        string
 	Method      string
@@ -11,6 +16,7 @@ type Route struct {
 	HandlerFunc http.HandlerFunc
 }
 
+// Routes is an array of Routes
 type Routes []Route
 
 var routes = Routes{
@@ -19,6 +25,18 @@ var routes = Routes{
 		"GET",
 		"/v1/todo",
 		ToDoIndex,
+	},
+	Route{
+		"ToDoReverseIndex",
+		"GET",
+		"/v1/todo/reverse",
+		ToDoReverseIndex,
+	},
+	Route{
+		"ToDoCompleted",
+		"GET",
+		"/v1/todo/completed",
+		ToDoCompleted,
 	},
 	Route{
 		"ToDoCreate",

@@ -8,11 +8,6 @@ import (
 	uuid "github.com/google/uuid"
 )
 
-type Card struct {
-	Title       string `json:"title,omitempty"`
-	Description string `json:"description,omitempty"`
-}
-
 // ToDo is a node in a linked list
 // It contains self-descriptive properties
 type ToDo struct {
@@ -34,6 +29,7 @@ type ToDoList struct {
 	Size int
 }
 
+// ToDos is an array of ToDo items
 type ToDos []ToDo
 
 // The layout being used for displaying time
@@ -60,38 +56,96 @@ func (t *ToDo) ToString() string {
 // ID: UUID, StartedOn: Current Time, CompletedOn: Beginning of Time
 // Completed: False
 // It returns a new ToDo struct
-func MakeToDo(title, description string) *ToDo {
+func MakeToDo(title, description string) ToDo {
 	id := uuid.New()
 
 	todo := ToDo{id, title, description, time.Now(), time.Time{}, false, nil, nil}
-	return &todo
+	return todo
 }
 
-func (tdl *ToDoList) GetArray(size int) ToDos {
-	if size > tdl.Size {
-		size = tdl.Size
-	}
-	if size == 0 {
-		return nil
+// GetArray gets an array of items from
+// startIndex -> endIndex (inclusive, exclusive)
+// If the index is invalid it will get the first item
+func (tdl *ToDoList) GetArray(startIndex, endIndex int) ToDos {
+	var todos ToDos
+	if startIndex > tdl.Size {
+		startIndex = 0
+		endIndex = 1
+		todos = make(ToDos, endIndex)
+
+	} else {
+		todos = make(ToDos, (endIndex - startIndex))
 	}
 
-	count := 0
-	todos := make(ToDos, size)
 	currentNode := tdl.Head
 	if currentNode == nil {
 		panic(errors.New("List has no items"))
 	}
 
-	for count < size-1 && currentNode != nil {
+	count := 0
+	for count < (endIndex-startIndex) && currentNode != nil {
 		todos[count] = *currentNode
 		count++
-		if count == 98 {
-			count = 98
-		}
 		currentNode = currentNode.Next
 	}
 
 	return todos
+}
+
+// GetReverseArray gets an array of items from
+// End of ToDoList -> startIndex (inclusive, exclusive)
+// If the index is invalid it will get the last item
+func (tdl *ToDoList) GetReverseArray(startIndex int) ToDos {
+	var todos ToDos
+	if startIndex > tdl.Size {
+		startIndex = tdl.Size - 1
+		todos = make(ToDos, 1)
+	} else {
+		todos = make(ToDos, (tdl.Size - startIndex))
+	}
+
+	currentNode := tdl.Tail
+	if currentNode == nil {
+		panic(errors.New("List has no items"))
+	}
+
+	count := 0
+	for count < (tdl.Size-startIndex) && currentNode != nil {
+		todos[count] = *currentNode
+		count++
+		currentNode = currentNode.Prev
+	}
+
+	return todos
+}
+
+// GetAllCompleted grabs a ToDo[max] array
+// of ToDo items completed in order of creation
+func (tdl *ToDoList) GetAllCompleted(max int) ToDos {
+	var todos ToDos
+	if max > tdl.Size {
+		max = tdl.Size
+	}
+
+	todos = make(ToDos, max)
+	currentNode := tdl.Head
+	if currentNode == nil {
+		panic(errors.New("List has no items"))
+	}
+
+	count := 0
+	numCompleted := 0
+	for count < max && currentNode != nil {
+		if currentNode.IsCompleted {
+			todos[count] = *currentNode
+			count++
+			numCompleted++
+		}
+		currentNode = currentNode.Next
+	}
+
+	completedToDos := todos[:numCompleted]
+	return completedToDos
 }
 
 // UpdateToDoEntity is a ToDoList method that updates an existing
@@ -132,6 +186,8 @@ func (tdl *ToDoList) AppendToDo(newToDo *ToDo) {
 	tdl.Size++
 }
 
+// CreateToDo returns a new ToDo item from an existing
+// ToDo item
 func (tdl *ToDoList) CreateToDo(newToDo ToDo) *ToDo {
 	id := uuid.New()
 
@@ -180,27 +236,24 @@ func (tdl *ToDoList) GetToDoByID(id uuid.UUID) (*ToDo, error) {
 		return nil, errors.New("No To-Do items added yet")
 	}
 
-	/* 	currentNode := tdl.Head
-	   	for currentNode.Next != nil {
-	   		if currentNode.ID == id {
-	   			return currentNode, nil
-	   		}
-	   		currentNode = currentNode.Next
-	   	}
-
-	   	if currentNode.ID == id {
-	   		return currentNode, nil
-	   	}
-
-	   	return nil, errors.New("Could not find To-Do item") */
-
-	if node := bstID.FindByID(id); node == nil {
-		return nil, errors.New("Could not find To-Do item")
-	} else {
-		return node, nil
+	currentNode := tdl.Head
+	for currentNode.Next != nil {
+		if currentNode.ID == id {
+			return currentNode, nil
+		}
+		currentNode = currentNode.Next
 	}
+
+	if currentNode.ID == id {
+		return currentNode, nil
+	}
+
+	return nil, errors.New("Could not find To-Do item")
 }
 
+// GetToDoByTitle is a ToDoList method that traverses the list
+// until it finds a ToDo item that matches
+// returns a ToDo item and an error if it fails to find a match
 func (tdl *ToDoList) GetToDoByTitle(value string) (*ToDo, error) {
 	if tdl.Head == nil {
 		return nil, errors.New("No To-Do items added yet")
@@ -208,6 +261,7 @@ func (tdl *ToDoList) GetToDoByTitle(value string) (*ToDo, error) {
 
 	currentNode := tdl.Head
 	for currentNode.Next != nil {
+		time.Sleep(10 * time.Millisecond)
 		if currentNode.Title == value {
 			return currentNode, nil
 		}
@@ -219,14 +273,9 @@ func (tdl *ToDoList) GetToDoByTitle(value string) (*ToDo, error) {
 	}
 
 	return nil, errors.New("Could not find To-Do item")
-
-	/* 	if node := bstID.FindByID(id); node == nil {
-	   		return nil, errors.New("Could not find To-Do item")
-	   	} else {
-	   		return node, nil
-	   	} */
 }
 
+// resets a list to zero values
 func (tdl *ToDoList) clearList() {
 	tdl.Head = nil
 	tdl.Tail = nil

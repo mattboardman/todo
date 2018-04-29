@@ -13,6 +13,16 @@ const vm = new Vue({
             }
     },
     methods: {
+        reverseIndex: function() {
+            axios.get("http://localhost:8080/v1/todo/reverse").then(response => {
+                this.results = response.data
+            });
+        },
+        completed: function() {
+            axios.get("http://localhost:8080/v1/todo/completed").then(response => {
+                this.results = response.data
+            });
+        },
         remove: function (index) {
             axios.delete("http://localhost:8080/v1/todo/"+index);
             window.location.reload()
@@ -30,32 +40,55 @@ const vm = new Vue({
             window.location.reload()
         },        
         search: function(query) {
+            document.getElementById('search-results').style.visibility = "hidden";
             var date = new Date()
             var start = window.performance.now()
             axios.get("http://localhost:8080/v1/todo/search/"+query).then(response => {
-                document.getElementById('title').innerHTML = response.data.title;
-                document.getElementById('description').innerHTML = response.data.description;
-                document.getElementById('started').innerHTML = response.data.started;
-                document.getElementById('completed').innerHTML = response.data.completed;
-                document.getElementById('iscompleted').innerHTML = response.data.iscompleted;
-                document.getElementById('search-results').style.visibility = "visible";
+                if (response.data != null) {
+                    document.getElementById('uuid').innerHTML = 'ID: ' + response.data.id;
+                    document.getElementById('title').innerHTML = 'Title: ' + response.data.title;
+                    document.getElementById('description').innerHTML = 'Description: ' + response.data.description;
+                    document.getElementById('started').innerHTML = 'Started: ' + response.data.started;
+                    document.getElementById('completed').innerHTML = 'Completed: ' + response.data.completed;
+                    document.getElementById('iscompleted').innerHTML = 'Is Completed: ' + response.data.iscompleted;
+                    document.getElementById('search-results').style.visibility = "visible";
+                } else {
+                    document.getElementById('uuid').innerHTML = "No search Results Found";
+                    document.getElementById('title').innerHTML = '';
+                    document.getElementById('description').innerHTML = '';
+                    document.getElementById('started').innerHTML = '';
+                    document.getElementById('completed').innerHTML = '';
+                    document.getElementById('iscompleted').innerHTML = '';
+                }
             });
             var finish = window.performance.now()
-            document.getElementById('search-time').innerHTML = (finish - start)
+            var factor = Math.pow(10, 4);
+            document.getElementById('search-time').innerHTML = 'Search Time: ' + (finish - start) + ' ms';
         },
         searchV2: function(query) {
+            document.getElementById('search-results').style.visibility = "hidden";
             var date = new Date()
             var start = window.performance.now()
             axios.get("http://localhost:8080/v2/todo/search/"+query).then(response => {
-                document.getElementById('title').innerHTML = response.data.title;
-                document.getElementById('description').innerHTML = response.data.description;
-                document.getElementById('started').innerHTML = response.data.started;
-                document.getElementById('completed').innerHTML = response.data.completed;
-                document.getElementById('iscompleted').innerHTML = response.data.iscompleted;
-                document.getElementById('search-results').style.visibility = "visible";
+                if (response.data != null) {
+                    document.getElementById('uuid').innerHTML = 'ID: ' + response.data.id;
+                    document.getElementById('title').innerHTML = 'Title: ' + response.data.title;
+                    document.getElementById('description').innerHTML = 'Description: ' + response.data.description;
+                    document.getElementById('started').innerHTML = 'Started: ' + response.data.started;
+                    document.getElementById('completed').innerHTML = 'Completed: ' + response.data.completed;
+                    document.getElementById('iscompleted').innerHTML = 'Is Completed: ' + response.data.iscompleted;
+                    document.getElementById('search-results').style.visibility = "visible";
+                } else {
+                    document.getElementById('uuid').innerHTML = "No search Results Found";
+                    document.getElementById('title').innerHTML = '';
+                    document.getElementById('description').innerHTML = '';
+                    document.getElementById('started').innerHTML = '';
+                    document.getElementById('completed').innerHTML = '';
+                    document.getElementById('iscompleted').innerHTML = '';
+                }
             });
             var finish = window.performance.now()
-            document.getElementById('search-time').innerHTML = (finish - start)
+            document.getElementById('search-time').innerHTML = 'Search Time: ' + (finish - start) + ' ms';
         },
     },
     mounted() {

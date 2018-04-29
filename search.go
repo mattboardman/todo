@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"strings"
+	"time"
 
 	uuid "github.com/google/uuid"
 )
@@ -44,6 +45,9 @@ func (n *Node) InsertByString(todo *ToDo) error {
 
 	switch {
 	case strings.ToLower(todo.Title) == strings.ToLower(n.ToDo.Title):
+		if todo.ID.ID() != n.ToDo.ID.ID() {
+			n.InsertByID(todo)
+		}
 		return nil
 	case strings.ToLower(todo.Title) < strings.ToLower(n.ToDo.Title):
 		if n.Left == nil {
@@ -81,6 +85,7 @@ func (n *Node) FindByString(value string) *ToDo {
 		return nil
 	}
 
+	time.Sleep(10 * time.Millisecond)
 	switch {
 	case strings.ToLower(value) == strings.ToLower(n.ToDo.Title):
 		return n.ToDo
@@ -91,24 +96,14 @@ func (n *Node) FindByString(value string) *ToDo {
 	}
 }
 
-func (n *Node) findMaxID(parent *Node) (*Node, *Node) {
+func (n *Node) findMax(parent *Node) (*Node, *Node) {
 	if n == nil {
 		return nil, parent
 	}
 	if n.Right == nil {
 		return n, parent
 	}
-	return n.Right.findMaxID(n)
-}
-
-func (n *Node) findMaxString(parent *Node) (*Node, *Node) {
-	if n == nil {
-		return nil, parent
-	}
-	if n.Right == nil {
-		return n, parent
-	}
-	return n.Right.findMaxString(n)
+	return n.Right.findMax(n)
 }
 
 func (n *Node) replaceNode(parent, replacement *Node) error {
@@ -141,13 +136,13 @@ func (n *Node) DeleteByID(id uuid.UUID, parent *Node) error {
 		}
 		if n.Left == nil {
 			n.replaceNode(parent, n.Right)
-
+			return nil
 		}
 		if n.Right == nil {
 			n.replaceNode(parent, n.Left)
 			return nil
 		}
-		replacement, replParent := n.Left.findMaxID(n)
+		replacement, replParent := n.Left.findMax(n)
 		n.ToDo = replacement.ToDo
 		return replacement.DeleteByID(replacement.ToDo.ID, replParent)
 	}
@@ -161,7 +156,7 @@ func (n *Node) DeleteByString(value string, parent *Node) error {
 	switch {
 	case strings.ToLower(value) < strings.ToLower(n.ToDo.Title):
 		return n.Left.DeleteByString(value, n)
-	case strings.ToLower(value) < strings.ToLower(n.ToDo.Title):
+	case strings.ToLower(value) > strings.ToLower(n.ToDo.Title):
 		return n.Right.DeleteByString(value, n)
 	default:
 		if n.Left == nil && n.Right == nil {
@@ -170,13 +165,13 @@ func (n *Node) DeleteByString(value string, parent *Node) error {
 		}
 		if n.Left == nil {
 			n.replaceNode(parent, n.Right)
-
+			return nil
 		}
 		if n.Right == nil {
 			n.replaceNode(parent, n.Left)
 			return nil
 		}
-		replacement, replParent := n.Left.findMaxID(n)
+		replacement, replParent := n.Left.findMax(n)
 		n.ToDo = replacement.ToDo
 		return replacement.DeleteByString(replacement.ToDo.Title, replParent)
 	}
