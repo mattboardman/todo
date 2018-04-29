@@ -237,15 +237,11 @@ func (tdl *ToDoList) GetToDoByID(id uuid.UUID) (*ToDo, error) {
 	}
 
 	currentNode := tdl.Head
-	for currentNode.Next != nil {
+	for currentNode != nil {
 		if currentNode.ID == id {
 			return currentNode, nil
 		}
 		currentNode = currentNode.Next
-	}
-
-	if currentNode.ID == id {
-		return currentNode, nil
 	}
 
 	return nil, errors.New("Could not find To-Do item")
@@ -260,16 +256,12 @@ func (tdl *ToDoList) GetToDoByTitle(value string) (*ToDo, error) {
 	}
 
 	currentNode := tdl.Head
-	for currentNode.Next != nil {
+	for currentNode != nil {
 		time.Sleep(10 * time.Millisecond)
 		if currentNode.Title == value {
 			return currentNode, nil
 		}
 		currentNode = currentNode.Next
-	}
-
-	if currentNode.Title == value {
-		return currentNode, nil
 	}
 
 	return nil, errors.New("Could not find To-Do item")
