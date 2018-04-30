@@ -25,7 +25,7 @@ Docker image hosted here: https://hub.docker.com/r/mattboardman/todo/
 
 ````bash
 docker pull mattboardman/todo:first
-docker run -it -p <frontend-port>:1080 -p <backend-port>:8080 mattboardman/todo
+docker run -it -p <frontend-port>:1080 -p <backend-port>:8080 mattboardman/todo:first
 ````
 Then navigate your browser to http://localhost:<frontend-port\>
 
